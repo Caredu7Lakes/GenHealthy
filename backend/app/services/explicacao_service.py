@@ -10,12 +10,15 @@ A LLM e injetada (LLMClient), permitindo mock nos testes.
 from app.core.disclaimer import DISCLAIMER_OBRIGATORIO
 from app.core.llm import LLMClient, get_llm_client
 from app.core.logging_config import get_logger
-from app.rag.store import buscar
+from app.rag.store import buscar_hibrido
 from app.schemas.paciente import PacienteLaudo
 from app.services.leitura_service import carregar_laudo
 from app.services.exames_service import carregar_exames
 from app.services.integracao_service import integrar
 from app.services.anamnese_service import gerar_cruzamento_clinico
+
+TERMOS_BUSCA = ("diabetes tipo 2 doenca arterial coronariana metformina "
+                "estatina FTO obesidade recuperacao cardiaca")
 
 logger = get_logger(__name__)
 
@@ -96,7 +99,7 @@ def gerar_leitura(paciente_id: str, llm: LLMClient | None = None) -> dict:
     llm = llm or get_llm_client()
 
     termos = "diabetes tipo 2 doenca arterial coronariana metformina estatina FTO obesidade recuperacao cardiaca"
-    chunks = buscar(termos, k=6)
+    chunks = buscar_hibrido(TERMOS_BUSCA, k=6)
 
     # Carrega os exames antes, para a anamnese entrar no contexto da LLM.
     exames = carregar_exames(paciente_id)

@@ -1,7 +1,7 @@
 """Configuracao da aplicacao com validacao fail-fast.
 
-Provedor de LLM = AWS Bedrock (Claude); auth via perfil AWS, portanto
-LLM_API_KEY e opcional (mantido por compatibilidade).
+Provedor de LLM = AWS Bedrock (Claude); auth via perfil AWS.
+
 """
 
 from enum import Enum
@@ -28,9 +28,6 @@ class Settings(BaseSettings):
     AWS_REGION: str = "us-east-1"
     BEDROCK_MODEL_ID: str = "anthropic.claude-3-5-sonnet-20241022-v2:0"
 
-    LLM_API_KEY: str = "unused-with-bedrock"
-    LLM_MODEL: str = "claude-sonnet-4-6"
-
     LAUDOS_DIR: str = "data/laudos"
     CORPUS_DIR: str = "data/corpus"
     EXAMES_DIR: str = "data/exames"
@@ -39,6 +36,10 @@ class Settings(BaseSettings):
 
     ANAMNESE_DIR: str = "data/anamnese"
     FHIR_DIR: str = "data/fhir"
+
+    DECIDER_ARN: str = "arn:aws:bedrock-agentcore:us-east-1:479407619482:runtime/StrandsDeciders_genhealthy-GaBGkh5HM8"
+    DECIDER_TIMEOUT: float = 10.0
+    GROUNDING_THRESHOLD: float = 0.75
 
 
 @lru_cache

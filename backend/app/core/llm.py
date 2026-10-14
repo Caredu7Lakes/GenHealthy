@@ -1,7 +1,6 @@
 """core/llm.py — camada de abstracao de LLM.
 
-- AnthropicClient: API Anthropic direta (caminho garantido da demo).
-- BedrockClient: AWS Bedrock + Claude (quando a cota AWS liberar).
+- BedrockClient: AWS Bedrock + Claude.
 - get_llm_client(): fabrica que escolhe pela config (LLM_PROVIDER).
 Testes mockam esta camada — nunca chamam a API real.
 """
@@ -17,27 +16,6 @@ logger = get_logger(__name__)
 
 class LLMClient(Protocol):
     def gerar_json(self, system: str, user: str) -> dict: ...
-
-
-class AnthropicClient:
-    """API Anthropic direta (console.anthropic.com). Auth por chave de API."""
-
-    def __init__(self) -> None:
-        import anthropic
-
-        settings = get_settings()
-        self._model = settings.LLM_MODEL
-        self._client = anthropic.Anthropic(api_key=settings.LLM_API_KEY)
-
-    def gerar_json(self, system: str, user: str) -> dict:
-        msg = self._client.messages.create(
-            model=self._model,
-            max_tokens=1500,
-            system=system,
-            messages=[{"role": "user", "content": user}],
-        )
-        texto = msg.content[0].text
-        return _parse_json_estrito(texto)
 
 
 class BedrockClient:
@@ -79,8 +57,6 @@ def _parse_json_estrito(texto: str) -> dict:
 def get_llm_client() -> LLMClient:
     settings = get_settings()
     provedor = settings.LLM_PROVIDER
-    if provedor == "anthropic":
-        return AnthropicClient()
     if provedor == "bedrock":
         return BedrockClient()
-    raise ValueError(f"Provedor de LLM desconhecido: {provedor}")
+    raise ValueError(f"Provedor de LLM nao suportado (apenas bedrock): {provedor}")

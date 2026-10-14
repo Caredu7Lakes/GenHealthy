@@ -7,7 +7,7 @@ pytest-asyncio
 httpx
 faiss-cpu
 numpy
-sentence-transformers
+sentence-transformers[onnx]
 boto3
-anthropic
 cyvcf2
+strands-agents

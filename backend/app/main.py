@@ -1,6 +1,6 @@
 """Aplicacao FastAPI.
 
-Registra a rota de leitura cruzada (Sprint 3). LLM via API Anthropic direta (camada core/llm.py, selecionada por LLM_PROVIDER).
+Registra a rota de leitura cruzada (Sprint 3). LLM via Amazon Bedrock (camada core/llm.py, selecionada por LLM_PROVIDER).
 """
 
 from contextlib import asynccontextmanager

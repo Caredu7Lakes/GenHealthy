@@ -17,29 +17,17 @@ from app.core.logging_config import get_logger
 logger = get_logger(__name__)
 
 MODELO_EMBEDDING = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+ONNX_FILE = "onnx/model_qint8_avx512.onnx"  # quantizado CPU; mesmo arquivo no ingest e na busca
 
-def _detectar_dispositivo() -> str:
-    """Detecta o melhor dispositivo disponível para embeddings.
 
-    Ordem: GPU AMD (ROCm) -> GPU NVIDIA (CUDA) -> CPU. O PyTorch com ROCm
-    expõe a GPU AMD pela mesma API 'cuda' (torch.cuda.is_available()), entao
-    a deteccao cobre ambas. Fallback para CPU e transparente: o sistema roda
-    igual ao estado atual quando nenhuma GPU esta presente.
-    """
-    try:
-        import torch
-
-        if torch.cuda.is_available():
-            nome = torch.cuda.get_device_name(0)
-            # ROCm reporta o nome da GPU AMD (ex.: 'AMD Instinct MI300X').
-            backend = "ROCm/HIP" if getattr(torch.version, "hip", None) else "CUDA"
-            logger.info("GPU detectada: %s (backend %s)", nome, backend)
-            return "cuda"
-    except Exception as e:  # noqa: BLE001
-        logger.info("Sem GPU utilizavel (%s); usando CPU.", e)
-    logger.info("Usando CPU para embeddings.")
-    return "cpu"
-
+def carregar_modelo():
+    """Carrega o modelo de embedding em backend ONNX (CPU, sem torch)."""
+    from sentence_transformers import SentenceTransformer
+    return SentenceTransformer(
+        MODELO_EMBEDDING,
+        backend="onnx",
+        model_kwargs={"file_name": ONNX_FILE},
+    )
 
 def _chunks_do_corpus(corpus_dir: Path) -> list[dict]:
     chunks = []
@@ -87,7 +75,7 @@ def _chunks_dos_laudos(laudos_dir: Path) -> list[dict]:
 def construir_indice() -> int:
     import faiss
     import numpy as np
-    from sentence_transformers import SentenceTransformer
+    
 
     settings = get_settings()
     corpus_chunks = _chunks_do_corpus(Path(settings.CORPUS_DIR))
@@ -96,9 +84,8 @@ def construir_indice() -> int:
     if not todos:
         raise RuntimeError("Nenhum chunk para indexar. Verifique data/corpus e data/laudos.")
 
-    dispositivo = _detectar_dispositivo()
-    logger.info("Carregando modelo de embedding local: %s (dispositivo: %s)", MODELO_EMBEDDING, dispositivo)
-    modelo = SentenceTransformer(MODELO_EMBEDDING, device=dispositivo)
+    logger.info("Carregando modelo de embedding (ONNX/CPU): %s", MODELO_EMBEDDING)
+    modelo = carregar_modelo()
     textos = [c["texto"] for c in todos]
     vetores = modelo.encode(textos, convert_to_numpy=True, normalize_embeddings=True)
     vetores = np.asarray(vetores, dtype="float32")

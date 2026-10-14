@@ -1,5 +1,6 @@
-﻿__pycache__/
-*.pyc
-.venv/
-.env
-*.faiss
+﻿.aws/
+*.pem
+.hf_cache/
+genrisk-src/
+strands-decider-src/
+node_modules/
