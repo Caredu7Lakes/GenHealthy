@@ -1,13 +1,15 @@
-"""Agente GenHealthy (Strands + Bedrock). Decisão de grounding delegada ao
-Decider 2B via gate (ver tools.leitura_cruzada_auditada)."""
+﻿"""GenHealthy agent (Strands + Bedrock). Grounding decision delegated to
+Decider 2B via the gate (see tools.leitura_cruzada_auditada)."""
 from __future__ import annotations
 import os
-from strands import Agent                      # confirmar imports contra o SDK
+from strands import Agent
 from strands.models import BedrockModel
 from .tools import leitura_cruzada_auditada
 
-SYSTEM = ("Você é um agente de apoio à leitura clínica. Use a tool de leitura "
-          "cruzada auditada e nunca afirme além do que ela retornar como grounded.")
+SYSTEM = ("You are a clinical reading-support agent. Use the audited "
+          "cross-reading tool and never assert anything beyond what it "
+          "returns as grounded.")
+
 
 def build_agent() -> Agent:
     model = BedrockModel(
@@ -16,5 +18,6 @@ def build_agent() -> Agent:
     )
     return Agent(model=model, system_prompt=SYSTEM, tools=[leitura_cruzada_auditada])
 
+
 if __name__ == "__main__":
-    print(build_agent()("Faça a leitura cruzada auditada do paciente 001."))
+    print(build_agent()("Produce the audited cross-reading for patient 001."))
