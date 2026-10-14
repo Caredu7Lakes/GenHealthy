@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+pytest
+pytest-asyncio
+httpx
+faiss-cpu
+numpy
+sentence-transformers
+boto3
+anthropic
+cyvcf2
