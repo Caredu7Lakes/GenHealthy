@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     LLM_PROVIDER: str = "bedrock"
 
     AWS_REGION: str = "us-east-1"
-    BEDROCK_MODEL_ID: str = "anthropic.claude-3-5-sonnet-20241022-v2:0"
+    BEDROCK_MODEL_ID: str = "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
 
     LAUDOS_DIR: str = "data/laudos"
     CORPUS_DIR: str = "data/corpus"
