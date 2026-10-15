@@ -1,5 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchLeitura, fetchPacientes } from './client'
+import { fetchLeitura, fetchPacientes, fetchConsolidado } from './client'
+
+export function useConsolidado(pacienteId: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: ['consolidado', pacienteId],
+    queryFn: ({ signal }) => fetchConsolidado(pacienteId!, signal),
+    enabled: pacienteId !== null && enabled,
+  })
+}
 
 // Lista de pacientes para o seletor. Busca uma vez e cacheia.
 export function usePacientes() {

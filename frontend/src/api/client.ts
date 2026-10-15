@@ -1,4 +1,15 @@
-import type { Leitura, ListaPacientes } from './types'
+import type { Leitura, ListaPacientes, Consolidado } from './types'
+
+
+export function fetchConsolidado(
+  pacienteId: string,
+  signal?: AbortSignal,
+): Promise<Consolidado> {
+  return getJson<Consolidado>(
+    `${API_BASE}/api/v1/consolidado/${encodeURIComponent(pacienteId)}`,
+    signal,
+  )
+}
 
 const API_BASE = import.meta.env.VITE_API_URL ?? ''
 
@@ -42,5 +53,19 @@ export function fetchLeitura(
     `${API_BASE}/api/v1/leitura/${encodeURIComponent(pacienteId)}`,
     signal,
   )
+}
+
+export function validarPaciente(
+  pacienteId: string,
+  body: { resumo: string; posicao_final: unknown; ecg_verdict: string },
+): Promise<{ status: string; paciente_id: string }> {
+  return fetch(`${API_BASE}/api/v1/validar/${encodeURIComponent(pacienteId)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then((r) => {
+    if (!r.ok) throw new ApiError(r.status, 'Validation failed')
+    return r.json()
+  })
 }
 

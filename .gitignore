@@ -3,4 +3,6 @@
 .hf_cache/
 genrisk-src/
 strands-decider-src/
-node_modules/
+node_modules/data/ecg/*.png
+univesp-policy.json
+agentcore-deploy-policy.json

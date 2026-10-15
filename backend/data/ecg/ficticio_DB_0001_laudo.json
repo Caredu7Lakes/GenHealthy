@@ -1,0 +1,7 @@
+{
+  "paciente_id": "ficticio_DB_0001",
+  "tipo": "ECG 12 derivacoes",
+  "ritmo": "sinusal",
+  "fc_bpm": 72,
+  "conclusao": "Sinus rhythm, heart rate 72 bpm, normal axis, no acute changes."
+}

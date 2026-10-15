@@ -27,7 +27,8 @@ class Settings(BaseSettings):
 
     AWS_REGION: str = "us-east-1"
     BEDROCK_MODEL_ID: str = "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
-
+    VISION_MODEL_ID: str = "us.amazon.nova-pro-v1:0"
+    
     LAUDOS_DIR: str = "data/laudos"
     CORPUS_DIR: str = "data/corpus"
     EXAMES_DIR: str = "data/exames"
@@ -37,10 +38,11 @@ class Settings(BaseSettings):
     ANAMNESE_DIR: str = "data/anamnese"
     FHIR_DIR: str = "data/fhir"
 
-    DECIDER_ARN: str = "arn:aws:bedrock-agentcore:us-east-1:479407619482:runtime/StrandsDeciders_genhealthy-GaBGkh5HM8"
+    DECIDER_ARN: str = "arn:aws:bedrock-agentcore:us-east-1:857190081936:runtime/StrandsDeciders_genhealthy-LkoxwZ7Uzn"
     DECIDER_TIMEOUT: float = 10.0
     GROUNDING_THRESHOLD: float = 0.75
 
+    HISTORICO_TABLE: str = "genhealthy-historico"
 
 @lru_cache
 def get_settings() -> Settings:

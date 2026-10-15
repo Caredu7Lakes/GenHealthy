@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Baixa o modelo de embedding no build, embutindo-o na imagem.
@@ -19,6 +20,8 @@ RUN pip install --no-cache-dir -e .
 
 # Constrói o índice FAISS no build (corpus estático, ~0.06 MB).
 RUN python -m app.rag.ingest
+
+RUN python -c "from app.whatsapp_mock.ecg_sintetico import gerar; from pathlib import Path; p = Path('data/ecg'); p.mkdir(parents=True, exist_ok=True); (p/'ficticio_DB_0001_ecg.png').write_bytes(gerar(conforme=False))"
 
 RUN chmod +x entrypoint.sh
 CMD ["./entrypoint.sh"]

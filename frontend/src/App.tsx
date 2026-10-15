@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { usePacientes, useLeitura } from './api/hooks'
-import { ApiError } from './api/client'
+import { usePacientes, useLeitura, useConsolidado } from './api/hooks'
+import { ApiError, validarPaciente } from './api/client'
 import type { Confianca, Modificador } from './api/types'
 import './App.css'
 
@@ -58,11 +58,14 @@ export default function App() {
   const [pacienteId, setPacienteId] = useState<string | null>(null)
   const pacientes = usePacientes()
   const leitura = useLeitura(pacienteId)
+  const [rodarConsolidado, setRodarConsolidado] = useState(false)
+  const consolidado = useConsolidado(pacienteId, rodarConsolidado)
+  const [validado, setValidado] = useState(false)
 
   return (
     <div className="app">
       <header className="app-header">
-        <h1>GenRisk</h1>
+        <h1>GenHealthy</h1>
         <p className="subtitulo">
           Cross-reading of genetic reports — cardiometabolic axis
         </p>
@@ -73,7 +76,7 @@ export default function App() {
         <select
           id="paciente"
           value={pacienteId ?? ''}
-          onChange={(e) => setPacienteId(e.target.value || null)}
+          onChange={(e) => { setPacienteId(e.target.value || null); setRodarConsolidado(false); setValidado(false) }}
           disabled={pacientes.isLoading || pacientes.isError}
         >
           <option value="">— select —</option>
@@ -112,6 +115,97 @@ export default function App() {
           <article className="leitura">
             <h2>Summary</h2>
             <p>{leitura.data.resumo}</p>
+
+    <section className="consolidado">
+      
+              {!rodarConsolidado && (
+                <button className="btn-consolidado" onClick={() => setRodarConsolidado(true)}>
+                  🫀 Run ECG + consolidated analysis
+                </button>
+              )}
+
+              {rodarConsolidado && consolidado.isLoading && (
+                <p className="carregando">
+                  Running Nova Pro (vision) + Decider… this may take a few seconds.
+                </p>
+              )}
+
+              {consolidado.data?.status === 'pipeline_incompleto' && (
+                <div className="pipeline-incompleto">
+                  <span className="pi-icon">⚠️</span>
+                  <div>
+                    <strong>{consolidado.data.modelo_faltante} did not analyze</strong>
+                    <div className="pi-motivo">
+                      {consolidado.data.motivo} — no final position produced.
+                      The pipeline never validates without every model in the loop.
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {consolidado.data?.status === 'ok' && consolidado.data.ecg && (
+                <>
+                  {consolidado.data.posicao_final && (
+                    <div className={`posicao-final ${consolidado.data.posicao_final.status}`}>
+                      <span className="pf-rotulo">{consolidado.data.posicao_final.rotulo}</span>
+                      <span className="pf-motivo">{consolidado.data.posicao_final.motivo}</span>
+                    </div>
+                  )}
+
+                  <div className="ecg-card">
+                    {consolidado.data.ecg.imagem_b64 && (
+                      <img
+                        className="ecg-img"
+                        src={`data:image/png;base64,${consolidado.data.ecg.imagem_b64}`}
+                        alt="ECG trace"
+                      />
+                    )}
+                    <div className="ecg-body">
+                      <span className={`ecg-verdict ${consolidado.data.ecg.verdict}`}>
+                        {consolidado.data.ecg.verdict} · P={consolidado.data.ecg.confidence.toFixed(2)}
+                      </span>
+                      <div className="ecg-linha"><strong>Report:</strong> {consolidado.data.ecg.conclusao}</div>
+                      <div className="ecg-linha"><strong>Image (Nova Pro):</strong> {consolidado.data.ecg.findings}</div>
+                    </div>
+                  </div>
+
+                                    {consolidado.data.confronto && (
+                    <div className={`confronto ${consolidado.data.confronto.sem_historico ? 'novo' : consolidado.data.confronto.ran ? consolidado.data.confronto.verdict : 'indisponivel'}`}>
+                      <strong>📚 History check (Decider 2B):</strong>{' '}
+                      {consolidado.data.confronto.sem_historico
+                        ? 'first visit — no prior history to compare.'
+                        : consolidado.data.confronto.ran
+                          ? `${consolidado.data.confronto.verdict.replace(/_/g, ' ')} · P=${consolidado.data.confronto.confidence.toFixed(2)}`
+                          : `unavailable (${consolidado.data.confronto.error}) — shown for information, does not block validation.`}
+                    </div>
+                  )}
+
+                                    <div className="medico-acoes">
+                    {!validado ? (
+                      <>
+                        <button
+                          className="btn-validar"
+                          onClick={async () => {
+                            if (!pacienteId || !consolidado.data?.posicao_final) return
+                            await validarPaciente(pacienteId, {
+                              resumo: consolidado.data.leitura?.resumo ?? '',
+                              posicao_final: consolidado.data.posicao_final,
+                              ecg_verdict: consolidado.data.ecg?.verdict ?? '',
+                            })
+                            setValidado(true)
+                          }}
+                        >
+                          ✅ Validate &amp; send to patient
+                        </button>
+                        <button className="btn-rejeitar">🚫 Reject</button>
+                      </>
+                    ) : (
+                      <span className="validado-ok">✅ Validated · recorded to history · sent to patient</span>
+                    )}
+                  </div>
+
+                </>)}
+             </section>
 
             {leitura.data.grounding_gate && (
               <div className={`gate-banner ${leitura.data.grounding_gate.status}`}>

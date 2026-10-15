@@ -83,3 +83,37 @@ export interface GroundingGate {
   blocked: number
   status: 'ok' | 'needs_review'
 }
+
+export interface EcgResult {
+  verdict: 'conforme' | 'nao_conforme' | 'inconclusivo'
+  confidence: number
+  findings: string
+  conclusao: string
+  imagem_b64: string
+}
+
+export interface PosicaoFinal {
+  status: 'consistente' | 'revisar' | 'conflito'
+  rotulo: string
+  motivo: string
+}
+
+export interface Consolidado {
+  status: 'ok' | 'pipeline_incompleto'
+  log: string[]
+  modelo_faltante?: string
+  motivo?: string
+  ecg?: EcgResult
+  grounding_status?: string
+  posicao_final?: PosicaoFinal | null
+  leitura?: Leitura
+  confronto?: Confronto
+}
+
+export interface Confronto {
+  ran: boolean
+  sem_historico: boolean
+  verdict: string
+  confidence: number
+  error: string
+}
