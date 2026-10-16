@@ -7,7 +7,7 @@
 ![Nova Pro](https://img.shields.io/badge/Nova_Pro-vision-6b3fa0?style=for-the-badge)
 ![Pattern](https://img.shields.io/badge/pattern-%23guardrails-3fb950?style=for-the-badge)
 ![CPU only](https://img.shields.io/badge/GPU-not_needed-3fb950?style=for-the-badge)
-![License](https://img.shields.io/badge/license-MIT--0-yellow?style=for-the-badge)
+![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 ![Tests](https://img.shields.io/badge/tests-40_passing-3fb950?style=for-the-badge)
 
 > **The problem:** in clinical AI, a model that invents a gene or a finding isn't just wrong — it's dangerous. And a pipeline that ships a verdict while a model silently failed is worse.
